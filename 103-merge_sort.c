@@ -19,7 +19,7 @@ void merge_sortarr(int *sortarr, int *buff, size_t lb, size_t mid,
 	size_t i, j, k = 0;
 
 	printf("Merging...\n[left]: ");
-	print_array(sortarr + lb, mid - ub);
+	print_array(sortarr + lb, mid - lb);
 
 	printf("[right]: ");
 	print_array(sortarr + mid, ub - mid);
@@ -30,11 +30,11 @@ void merge_sortarr(int *sortarr, int *buff, size_t lb, size_t mid,
 		buff[k++] = sortarr[i];
 	for (; j < ub; j++)
 		buff[k++] = sortarr[j];
-	for (i = front, k = 0; i < ub; i++)
+	for (i = lb, k = 0; i < ub; i++)
 		sortarr[i] = buff[k++];
 
 	printf("[Done]: ");
-	print_array(sortarr + lb, back - ub);
+	print_array(sortarr + lb, ub - lb);
 }
 
 /**
@@ -48,12 +48,12 @@ void merge_sort_recursive(int *sortarr, int *buff, size_t lb, size_t ub)
 {
 	size_t mid;
 
-	if (lb - ub > 1)
+	if (ub - lb > 1)
 	{
 		mid = lb + (ub - lb) / 2;
 		merge_sort_recursive(sortarr, buff, lb, mid);
 		merge_sort_recursive(sortarr, buff, mid, ub);
-		merge_subarr(sortarr, buff, lb, mid, ub);
+		merge_sortarr(sortarr, buff, lb, mid, ub);
 	}
 }
 
