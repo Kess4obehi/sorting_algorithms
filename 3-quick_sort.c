@@ -1,96 +1,82 @@
 #include "sort.h"
 
-void swap_ints(int *a, int *b);
-int lomuto_partition(int *array, size_t size, int left, int right);
-void lomuto_sort(int *array, size_t size, int left, int right);
-void quick_sort(int *array, size_t size);
+void merge_subarr(int *subarr, int *buff, size_t front, size_t mid,
+		size_t back);
+void merge_sort_recursive(int *subarr, int *buff, size_t front, size_t back);
+void merge_sort(int *array, size_t size);
 
 /**
- * swap_ints - Swap two integers in an array.
- * @a: The first integer to swap.
- * @b: The second integer to swap.
+ * merge_subarr - Sort a subarray of integers.
+ * @subarr: A subarray of an array of integers to sort.
+ * @buff: A buffer to store the sorted subarray.
+ * @front: The front index of the array.
+ * @mid: The middle index of the array.
+ * @back: The back index of the array.
  */
-
-void swap_ints(int *a, int *b)
+void merge_subarr(int *subarr, int *buff, size_t front, size_t mid,
+		size_t back)
 {
-	int tmp = *a;
-	*a = *b;
-	*b = tmp;
+	size_t a, b, c = 0;
+
+	printf("Merging...\n[left]: ");
+	print_array(subarr + front, mid - front);
+
+	printf("[right]: ");
+	print_array(subarr + mid, back - mid);
+
+	for (a = front, b = mid; a < mid && b < back; c++)
+		buff[c] = (subarr[a] < subarr[b]) ? subarr[a++] : subarr[b++];
+	for (; a < mid; a++)
+		buff[c++] = subarr[a];
+	for (; b < back; b++)
+		buff[c++] = subarr[b];
+	for (a = front, c = 0; a < back; a++)
+		subarr[a] = buff[c++];
+
+	printf("[Done]: ");
+	print_array(subarr + front, back - front);
 }
 
 /**
- * lomuto_partition - Order a subset of an array of integers according to
- *                    the lomuto partition scheme (last element as pivot).
- * @array: The array of integers.
- * @size: The size of the array.
- * @left: The starting index of the subset to order.
- * @right: The ending index of the subset to order.
- *
- * Return: The final partition index.
+ * merge_sort_recursive - Implement the merge sort algorithm through recursion.
+ * @subarr: A subarray of an array of integers to sort.
+ * @buff: A buffer to store the sorted result.
+ * @front: The front index of the subarray.
+ * @back: The back index of the subarray.
  */
-
-int lomuto_partition(int *array, size_t size, int left, int right)
+void merge_sort_recursive(int *subarr, int *buff, size_t front, size_t back)
 {
-	int *pivot = array + right;
-	int above = left, below;
+	size_t mid;
 
-	for (below = left; below < right; below++)
+	if (back - front > 1)
 	{
-		if (array[below] < *pivot)
-		{
-			if (above < below)
-			{
-				swap_ints(array + below, array + above);
-				print_array(array, size);
-			}
-			above++;
-		}
-	}
-
-	if (array[above] > *pivot)
-	{
-		swap_ints(array + above, pivot);
-		print_array(array, size);
-	}
-
-	return (above);
-}
-
-/**
- * lomuto_sort - Implement the quicksort algorithm through recursion.
- * @array: An array of integers to sort.
- * @size: The size of the array.
- * @left: The starting index of the array partition to order.
- * @right: The ending index of the array partition to order.
- *
- * Description: Uses the Lomuto partition scheme.
- */
-
-void lomuto_sort(int *array, size_t size, int left, int right)
-{
-	if (right - left > 0)
-	{
-		int part = lomuto_partition(array, size, left, right);
-
-		lomuto_sort(array, size, left, part - 1);
-		lomuto_sort(array, size, part + 1, right);
+		mid = front + (back - front) / 2;
+		merge_sort_recursive(subarr, buff, front, mid);
+		merge_sort_recursive(subarr, buff, mid, back);
+		merge_subarr(subarr, buff, front, mid, back);
 	}
 }
 
 /**
- * quick_sort - Sort an array of integers in ascending
- *              order using the quicksort algorithm.
+ * merge_sort - Sort an array of integers in ascending
+ *              order using the merge sort algorithm.
  * @array: An array of integers.
  * @size: The size of the array.
  *
- * Description: Uses the Lomuto partition scheme. Prints
- *              the array after each swap of two elements.
+ * Description: Implements the top-down merge sort algorithm.
  */
-
-void quick_sort(int *array, size_t size)
+void merge_sort(int *array, size_t size)
 {
+	int *buff;
+
 	if (array == NULL || size < 2)
 		return;
 
-	lomuto_sort(array, size, 0, size - 1);
+	buff = malloc(sizeof(int) * size);
+	if (buff == NULL)
+		return;
+
+	merge_sort_recursive(array, buff, 0, size);
+
+	free(buff);
 }
